@@ -102,31 +102,25 @@ function urlToHttpRequest(url) {
   return req;
 }
 
-addListener(logStream, false);
+addListener(logStream);
 
 function serverCallback(request, response) {
   console.log("Got a new listener");
   request.on('end', function() { console.log("request end: " + request) });
-  request.on('close', function() { console.log("request close: " + request) });
-  addListener(response, request)
+  request.on('clone', function() { console.log("request clone: " + request) });
+  addListener(response)
 }
 
 var listenerCount = 0;
-function addListener(writeStream, request) {
+function addListener(writeStream) {
   var index = responseStreams.length
   var name = "listener" + index;
   writeStream.on('end', function() { console.log("writeStream end: " + name) });
   writeStream.on('close', function() { console.log("writeStream close: " + name) });
   writeStream.on('error', function(ex) { console.log("writeStream error: " + name + " ex: " + ex) });
   writeStream.on('drain', function() { recordSuccessfulWrite(index); });
-  responseStreams[index] = writeStream;
+  responseStreams.push(writeStream);
   recordSuccessfulWrite(index);
-  if (request) {
-    request.on('close', function() { 
-      console.log("Request for " + name + " was closed. Evicting.");
-      responseStreams[index] = null;
-    });
-  }
 }
 
 console.log("Creating server listening on " + serverPort);
