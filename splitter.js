@@ -95,7 +95,7 @@ function urlToHttpRequest(url) {
   req.on('error', function(ex) {
     //in the case of a network error just have a short break.
     console.log("Origin error: " + ex.message);
-    var t = pow(10,consecutiveErrorCount)*1000;
+    var t = Math.pow(10,consecutiveErrorCount)*1000;
     console.log("Trying again in:" + t);
     consecutiveErrorCount++;
     setTimeout(function(){urlToHttpRequest(url)},t);
