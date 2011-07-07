@@ -60,12 +60,14 @@ var consecutiveErrorCount = 0;
 function urlToHttpRequest(url) {
   var req = http.request(urlToHttpOptions(url), function(res) {
     console.log('STATUS: ' + res.statusCode);
-    //if it's not success wait a bit
-    if(res.statusCode.indexOf("20") != 0){
-        consecutiveErrorCount++;
-        setTimeout(urlToHttpRequest(url),consecutiveErrorCount * 60*1000);
-    }
     console.log('HEADERS: ' + JSON.stringify(res.headers));
+    //if it's not success wait a bit
+    if(res.statusCode.toString().indexOf("20") != 0){
+        consecutiveErrorCount++;
+        console.log('Errors:' + consecutiveErrorCount);
+        setTimeout(function(){urlToHttpRequest(url)},consecutiveErrorCount * 60*1000);
+        return;
+    }
     res.setEncoding('utf8');
     res.on('data', function (data) {
       consecutiveErrorCount = 0;  
@@ -96,7 +98,7 @@ function urlToHttpRequest(url) {
     var t = pow(10,consecutiveErrorCount)*1000;
     console.log("Trying again in:" + t);
     consecutiveErrorCount++;
-    setTimeout(urlToHttpRequest(url),t);
+    setTimeout(function(){urlToHttpRequest(url)},t);
   });
   req.on('end', function() {
     console.log("Origin end");
